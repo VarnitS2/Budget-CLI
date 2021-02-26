@@ -1,0 +1,5 @@
+# Ignore sensitive data
+Data/
+
+# Ignore DS_Store
+.DS_Store
