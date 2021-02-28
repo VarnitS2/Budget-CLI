@@ -41,6 +41,16 @@ def addExpense(transactionDate, transactionType, transactionAmount, transactionC
             FIELDNAMES[4]: transactionCategory
         })
 
+def printFormattedDict(dictionary):
+    print("\nIndex\t\tDate\t\t\tType\t\tAmount\t\tCategory")
+
+    for row in dictionary:
+        print("{}\t\t{}\t\t{}\t\t${}\t\t{}".format(row[FIELDNAMES[0]], row[FIELDNAMES[1]], row[FIELDNAMES[2]], row[FIELDNAMES[3]], row[FIELDNAMES[4]]))
+
+def displayAll():
+    with open(DATA_FILENAME) as file:
+        printFormattedDict(csv.DictReader(file))
+
 
 if __name__ == "__main__":
 
@@ -66,7 +76,7 @@ if __name__ == "__main__":
             transactionDate, transactionType, transactionAmount, transactionCategory = getAddExpenseInput()
             addExpense(transactionDate, transactionType, transactionAmount, transactionCategory)
         elif (inputChoice == 2):
-            print("Under construction")
+            displayAll()
         elif (inputChoice == 3):
             print("Exiting")
             break
