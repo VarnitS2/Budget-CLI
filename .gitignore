@@ -3,3 +3,6 @@ Data/
 
 # Ignore DS_Store
 .DS_Store
+
+# Ignore all pyc
+__pycache__/
