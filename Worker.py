@@ -18,9 +18,6 @@ def menu():
 
     return int(input("Input: "))
 
-def createDict():
-    print("")
-
 def getAddExpenseInput():
     transactionDate = Date(input("Enter the date of the transaction (MM-DD-YY): "))
     transactionType = input("Enter the type of the transaction (+/-): ")
@@ -30,11 +27,14 @@ def getAddExpenseInput():
     return transactionDate, transactionType, transactionAmount, transactionCategory
 
 def addExpense(transactionDate, transactionType, transactionAmount, transactionCategory):
+    with open(DATA_FILENAME) as file:
+        index = sum(1 for row in csv.reader(file))
+
     with open(DATA_FILENAME, 'a') as file:
         writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
 
         writer.writerow({
-            FIELDNAMES[0]: 0,
+            FIELDNAMES[0]: index,
             FIELDNAMES[1]: transactionDate,
             FIELDNAMES[2]: transactionType,
             FIELDNAMES[3]: transactionAmount,
@@ -54,18 +54,10 @@ def displayAll():
 
 if __name__ == "__main__":
 
-    # Check if data file exists
-    if (os.path.isfile(DATA_FILENAME)):
-        fileFlag = True   
-    else:
-        fileFlag = False
-
-
     # If the data file does not exist, create it
-    if not fileFlag:
+    if not os.path.isfile(DATA_FILENAME):
         print("Data file does not exist, creating now")
         init()
-
 
     # Main event loop
     inputChoice = -1
