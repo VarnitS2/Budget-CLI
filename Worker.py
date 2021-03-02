@@ -13,8 +13,9 @@ def init():
 def menu():
     print("\n\t\t\t\t\tBudget\n")
     print("1. Add expense.")
-    print("2. See transaction history.")
-    print("3. Exit.\n")
+    print("2. See entire transaction history.")
+    print("3. See transaction history between two dates.")
+    print("4. Exit.\n")
 
     return int(input("Input: "))
 
@@ -41,15 +42,30 @@ def addExpense(transactionDate, transactionType, transactionAmount, transactionC
             FIELDNAMES[4]: transactionCategory
         })
 
-def printFormattedDict(dictionary):
-    print("\nIndex\t\tDate\t\t\tType\t\tAmount\t\tCategory")
-
-    for row in dictionary:
-        print("{}\t\t{}\t\t{}\t\t${}\t\t{}".format(row[FIELDNAMES[0]], row[FIELDNAMES[1]], row[FIELDNAMES[2]], row[FIELDNAMES[3]], row[FIELDNAMES[4]]))
-
-def displayAll():
+def display(startDate, endDate, displayAll=False):
     with open(DATA_FILENAME) as file:
-        printFormattedDict(csv.DictReader(file))
+        reader = csv.DictReader(file)
+        rowsToPrint = []
+
+        for row in reader:
+            if Date(row[FIELDNAMES[1]]).compare(Date(startDate)) >= 0 and Date(row[FIELDNAMES[1]]).compare(Date(endDate)) <= 0:
+                rowsToPrint.append(row)
+
+        if len(rowsToPrint) == 0:
+            if displayAll:
+                print("No transactions logged yet.")
+            else:
+                print("No transactions found for this range.")
+        else:
+            print("\nIndex\t\tDate\t\t\tType\t\tAmount\t\tCategory")
+            for row in rowsToPrint:
+                print("{}\t\t{}\t\t{}\t\t${}\t\t{}".format(row[FIELDNAMES[0]], row[FIELDNAMES[1]], row[FIELDNAMES[2]], row[FIELDNAMES[3]], row[FIELDNAMES[4]]))
+
+def getStartAndEndDates():
+    startDate = input("Enter start date (MM-DD-YY): ")
+    endDate = input("Enter end date (MM-DD-YY): ")
+
+    return startDate, endDate
 
 
 if __name__ == "__main__":
@@ -61,15 +77,18 @@ if __name__ == "__main__":
 
     # Main event loop
     inputChoice = -1
-    while(inputChoice != 3):
+    while(inputChoice != 4):
         inputChoice = menu()
         
         if (inputChoice == 1):
             transactionDate, transactionType, transactionAmount, transactionCategory = getAddExpenseInput()
             addExpense(transactionDate, transactionType, transactionAmount, transactionCategory)
         elif (inputChoice == 2):
-            displayAll()
+            display("00-00-00", "12-31-99", True)
         elif (inputChoice == 3):
+            startDate, endDate = getStartAndEndDates()
+            display(startDate, endDate) 
+        elif (inputChoice == 4):
             print("Exiting")
             break
         else:
