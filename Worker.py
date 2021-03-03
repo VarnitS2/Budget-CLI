@@ -2,7 +2,7 @@ import csv
 import os.path
 from lib.date import Date
 
-DATA_FILENAME = "Data/data.csv"
+DATA_FILENAME = "data/data.csv"
 FIELDNAMES = ["Index", "Date", "Type", "Amount", "Category"]
 
 def init():
@@ -20,9 +20,9 @@ def menu():
     return int(input("Input: "))
 
 def getAddTransactionInput():
-    transactionDate = Date(input("Enter the date of the transaction (MM-DD-YY): "))
+    transactionDate = Date(input("Enter the date of the transaction (MM/DD/YY): "))
     transactionType = input("Enter the type of the transaction (+/-): ")
-    transactionAmount = int(input("Enter the amount of the transaction: "))
+    transactionAmount = float(input("Enter the amount of the transaction: "))
     transactionCategory = input("Enter the category of the transaction: ")
 
     return transactionDate, transactionType, transactionAmount, transactionCategory
@@ -53,9 +53,9 @@ def display(startDate, endDate, displayAll=False):
                 rowsToPrint.append(row)
 
                 if row[FIELDNAMES[2]] == "+":
-                    netTotal += int(row[FIELDNAMES[3]])
+                    netTotal += float(row[FIELDNAMES[3]])
                 elif row[FIELDNAMES[2]] == "-":
-                    netTotal -= int(row[FIELDNAMES[3]])
+                    netTotal -= float(row[FIELDNAMES[3]])
 
         if len(rowsToPrint) == 0:
             if displayAll:
@@ -63,20 +63,20 @@ def display(startDate, endDate, displayAll=False):
             else:
                 print("No transactions found for this range.")
         else:
-            print("\nIndex\t\tDate\t\t\tType\t\tAmount\t\tCategory")
+            print("\nIndex\t\tDate\t\t\tType\t\t\tAmount\t\t\tCategory")
 
             for row in rowsToPrint:
-                print("{}\t\t{}\t\t{}\t\t${}\t\t{}".format(row[FIELDNAMES[0]], row[FIELDNAMES[1]], row[FIELDNAMES[2]], row[FIELDNAMES[3]], row[FIELDNAMES[4]]))
+                print("{}\t\t{}\t\t{}\t\t\t${}\t\t\t{}".format(row[FIELDNAMES[0]], row[FIELDNAMES[1]], row[FIELDNAMES[2]], row[FIELDNAMES[3]], row[FIELDNAMES[4]]))
             
             sign = ""
             if netTotal < 0:
                 sign = "-"
 
-            print("\n\t\t\t\tTotal: {}${}".format(sign, abs(netTotal)))
+            print("\n\t\t\t\t\tTotal: {}${:.2f}".format(sign, round(abs(netTotal), 2)))
 
 def getStartAndEndDates():
-    startDate = input("Enter start date (MM-DD-YY): ")
-    endDate = input("Enter end date (MM-DD-YY): ")
+    startDate = input("Enter start date (MM/DD/YY): ")
+    endDate = input("Enter end date (MM/DD/YY): ")
 
     return startDate, endDate
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
             transactionDate, transactionType, transactionAmount, transactionCategory = getAddTransactionInput()
             addTransaction(transactionDate, transactionType, transactionAmount, transactionCategory)
         elif (inputChoice == 2):
-            display("00-00-00", "12-31-99", True)
+            display("00/00/00", "12/31/99", True)
         elif (inputChoice == 3):
             startDate, endDate = getStartAndEndDates()
             display(startDate, endDate) 
