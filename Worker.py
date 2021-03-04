@@ -31,6 +31,8 @@ def addTransaction(transactionDate, transactionType, transactionAmount, transact
     with open(DATA_FILENAME) as file:
         index = sum(1 for row in csv.reader(file))
 
+    # TODO: insert record by date and not index
+
     with open(DATA_FILENAME, 'a') as file:
         writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
 
