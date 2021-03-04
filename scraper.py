@@ -8,13 +8,15 @@ DATA_FIELDNAMES = ["Index", "Date", "Type", "Amount", "Category"]
 datarows = []
 with open(FILENAME) as file:
     reader = csv.DictReader(file)
-    idx = sum(1 for row in reader if "XXXXX4128" in row[FIELDNAMES[1]] or "XXXXX7447" in row[FIELDNAMES[1]])
+    idx = sum(1 for row in reader if "XXXXX4128" in row[FIELDNAMES[1]] or "XXXXX7447" in row[FIELDNAMES[1]] or "PNCPJ3938" in row[FIELDNAMES[1]])
 
 with open(FILENAME) as file:
     reader = csv.DictReader(file)
     
+    ignoreRecordFlag = False
+
     for row in reader:
-        if "XXXXX4128" in row[FIELDNAMES[1]] or "XXXXX7447" in row[FIELDNAMES[1]]:
+        if "XXXXX4128" in row[FIELDNAMES[1]] or "XXXXX7447" in row[FIELDNAMES[1]] or "PNCPJ3938" in row[FIELDNAMES[1]]:
             if row[FIELDNAMES[3]] == "":
                 transactionType = "-"
                 transactionAmount = float(row[FIELDNAMES[2]].split("$")[1])
@@ -26,6 +28,8 @@ with open(FILENAME) as file:
                 transactionCategory = row[FIELDNAMES[1]].split("XXXXX4128")[1].split(" ")[1]
             elif "XXXXX7447" in row[FIELDNAMES[1]]:
                 transactionCategory = row[FIELDNAMES[1]].split("XXXXX7447")[1].split(" ")[-1]
+            elif "PNCPJ3938" in row[FIELDNAMES[1]]:
+                transactionCategory = "ATM"
 
             transactionDate = row[FIELDNAMES[0]].split("20")[0] + row[FIELDNAMES[0]].split("20")[1]
 
