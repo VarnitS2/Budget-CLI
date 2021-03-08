@@ -5,7 +5,14 @@ class Date:
         self.year = int(date.split('/')[2])
 
     def __str__(self):
-        return "{}/{}/{}".format(self.month, self.day, self.year)
+        if (self.month < 10 and self.day < 10):
+            toReturn = "0{}/0{}/{}".format(self.month, self.day, self.year)
+        elif (self.month < 10):
+            toReturn = "0{}/{}/{}".format(self.month, self.day, self.year)
+        else:
+            toReturn = "{}/{}/{}".format(self.month, self.day, self.year)
+        
+        return toReturn
 
     def compare(self, other):
         if other.year > self.year:
