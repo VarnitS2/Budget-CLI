@@ -5,7 +5,9 @@ from lib.date import Date
 DATA_FILENAME = "data/data.csv"
 FIELDNAMES = ["Index", "Date", "Type", "Amount", "Category"]
 
-def init():
+NOTES_FILENAME = "data/notes.txt"
+
+def dataInit():
     with open(DATA_FILENAME, 'w') as file:
         writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
         writer.writeheader()
@@ -16,7 +18,8 @@ def menu():
     print("\n1. Add transaction.")
     print("2. See entire transaction history.")
     print("3. See transaction history between two dates.")
-    print("4. Exit.\n")
+    print("4. Notes.")
+    print("5. Exit.\n")
 
     return int(input("Input: "))
 
@@ -73,8 +76,6 @@ def calculateOverallStats():
                     categoryTransactionCount[row[FIELDNAMES[4]]] = 1
                     categoryTransactionAmount[row[FIELDNAMES[4]]] = float(row[FIELDNAMES[3]])
 
-    # TODO: Add amount spent along with categories
-
     return balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount
 
 def display(startDate, endDate, displayAll=False):
@@ -126,17 +127,49 @@ def getStartAndEndDates():
     return startDate, endDate
 
 
+def readNotes():
+    os.system('clear')
+    flag = False
+
+    with open(NOTES_FILENAME) as file:
+        for line in file:
+            print(line)
+            flag = True
+
+    if not flag:
+        print("No notes yet.")
+
+def writeNotes():
+    note = ""
+
+    # TODO: Maintain an index of individual notes.
+    while True:
+        readNotes()
+
+        note = input("\nType exit to go back\n-> ")
+
+        if note == "exit":
+            break
+
+        with open(NOTES_FILENAME, 'a') as file:
+            file.write(note + "\n")
+
+
+# TODO: Add Spotify to scraper and include in data
+# TODO: Create a notes file, add a notes option to the menu, real-time display and write
+# TODO: Add upcoming dates to display (payroll, Spotify)
+
 if __name__ == "__main__":
 
     # If the data file does not exist, create it
     if not os.path.isfile(DATA_FILENAME):
         print("Data file does not exist, creating now")
-        init()
+        dataInit()
 
     # Main event loop
     inputChoice = -1
     os.system('clear')
-    while(inputChoice != 4):
+    while(inputChoice != 5):
         inputChoice = menu()
         
         if (inputChoice == 1):
@@ -146,8 +179,10 @@ if __name__ == "__main__":
             display("00/00/00", "12/31/99", True)
         elif (inputChoice == 3):
             startDate, endDate = getStartAndEndDates()
-            display(startDate, endDate) 
+            display(startDate, endDate)
         elif (inputChoice == 4):
+            writeNotes()
+        elif (inputChoice == 5):
             print("Exiting")
             break
         else:
