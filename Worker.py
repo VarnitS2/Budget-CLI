@@ -53,7 +53,8 @@ def calculateOverallStats():
         expenditureCount = 0
         income = 0
         incomeCount = 0
-        categoryList = {}
+        categoryTransactionCount = {}
+        categoryTransactionAmount = {}
 
         for row in reader:
             if row[FIELDNAMES[2]] == "+":
@@ -65,21 +66,25 @@ def calculateOverallStats():
                 expenditure += float(row[FIELDNAMES[3]])
                 expenditureCount += 1
 
-            if row[FIELDNAMES[4]] in categoryList:
-                categoryList[row[FIELDNAMES[4]]] += 1
-            else:
-                categoryList[row[FIELDNAMES[4]]] = 1
+                if row[FIELDNAMES[4]] in categoryTransactionCount:
+                    categoryTransactionCount[row[FIELDNAMES[4]]] += 1
+                    categoryTransactionAmount[row[FIELDNAMES[4]]] += float(row[FIELDNAMES[3]])
+                else:
+                    categoryTransactionCount[row[FIELDNAMES[4]]] = 1
+                    categoryTransactionAmount[row[FIELDNAMES[4]]] = float(row[FIELDNAMES[3]])
 
     # TODO: Add amount spent along with categories
 
-    return balance, expenditure, expenditureCount, income, incomeCount, categoryList
+    return balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount
 
 def display(startDate, endDate, displayAll=False):
     with open(DATA_FILENAME) as file:
         reader = csv.DictReader(file)
         rowsToPrint = []
-        balance, expenditure, expenditureCount, income, incomeCount, categoryList = calculateOverallStats()
-        sortedCategoryList = {k: v for k, v in sorted(categoryList.items(), key=lambda item: item[1])}
+        balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount = calculateOverallStats()
+        
+        # Sort categoryTransactionAmount in increasing order of total amount
+        sortedCategoryTransactionAmount = {k: v for k, v in sorted(categoryTransactionAmount.items(), key=lambda item: item[1])}
         tab = '\t'
 
         for row in reader:
@@ -101,12 +106,18 @@ def display(startDate, endDate, displayAll=False):
             if balance < 0:
                 sign = "-"
 
-            print("\n" + 10*tab + "Balance: {}${:.2f}\n\n".format(sign, round(abs(balance), 2)))
+            print("\n" + 10*tab + "\b\bBalance: {}${:.2f}\n\n".format(sign, round(abs(balance), 2)))
 
-            print(2*tab + "Balance Breakdown" + 11*tab + "Top Three Categories")
-            print(2*tab + "Expenditure: {} transactions totaling ${:.2f}".format(expenditureCount, round(abs(expenditure), 2)) + 8*tab + list(sortedCategoryList)[-1])
-            print(2*tab + "Income:      {} paychecks totaling ${:.2f}".format(incomeCount, round(abs(income), 2)) + 8*tab + list(sortedCategoryList)[-2])
-            print(15*tab + list(sortedCategoryList)[-3])
+            print(2*tab + "Balance Breakdown" + 9*tab + "Top Three Categories")
+
+            print(2*tab + "Expenditure: {} transactions totaling ${:.2f}".format(expenditureCount, round(abs(expenditure), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-1] 
+                    + ":\t\t{} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-1]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-1]], 2)))
+
+            print(2*tab + "Income:      {} paychecks totaling ${:.2f}".format(incomeCount, round(abs(income), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-2]
+                    + ":\t{} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-2]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-2]], 2)))
+
+            print(13*tab + list(sortedCategoryTransactionAmount)[-3]
+                    + ":\t\t{} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-3]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-3]], 2)))
 
 def getStartAndEndDates():
     startDate = input("Enter start date (MM/DD/YY): ")
