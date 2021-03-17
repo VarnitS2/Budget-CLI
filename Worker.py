@@ -1,5 +1,5 @@
 import csv
-import os.path
+import os
 from lib.date import Date
 
 DATA_FILENAME = "data/data.csv"
@@ -11,8 +11,9 @@ def init():
         writer.writeheader()
 
 def menu():
-    print("\n\t\t\t\t\tBudget\n")
-    print("1. Add transaction.")
+    print("\n")
+    print("Budget".center(170))
+    print("\n1. Add transaction.")
     print("2. See entire transaction history.")
     print("3. See transaction history between two dates.")
     print("4. Exit.\n")
@@ -44,20 +45,46 @@ def addTransaction(transactionDate, transactionType, transactionAmount, transact
             FIELDNAMES[4]: transactionCategory
         })
 
+def calculateOverallStats():
+    with open(DATA_FILENAME) as file:
+        reader = csv.DictReader(file)
+        balance = 0
+        expenditure = 0
+        expenditureCount = 0
+        income = 0
+        incomeCount = 0
+        categoryList = {}
+
+        for row in reader:
+            if row[FIELDNAMES[2]] == "+":
+                balance += float(row[FIELDNAMES[3]])
+                income += float(row[FIELDNAMES[3]])
+                incomeCount += 1
+            elif row[FIELDNAMES[2]] == "-":
+                balance -= float(row[FIELDNAMES[3]])
+                expenditure += float(row[FIELDNAMES[3]])
+                expenditureCount += 1
+
+            if row[FIELDNAMES[4]] in categoryList:
+                categoryList[row[FIELDNAMES[4]]] += 1
+            else:
+                categoryList[row[FIELDNAMES[4]]] = 1
+
+    # TODO: Add amount spent along with categories
+
+    return balance, expenditure, expenditureCount, income, incomeCount, categoryList
+
 def display(startDate, endDate, displayAll=False):
     with open(DATA_FILENAME) as file:
         reader = csv.DictReader(file)
         rowsToPrint = []
-        netTotal = 0
+        balance, expenditure, expenditureCount, income, incomeCount, categoryList = calculateOverallStats()
+        sortedCategoryList = {k: v for k, v in sorted(categoryList.items(), key=lambda item: item[1])}
+        tab = '\t'
 
         for row in reader:
             if Date(row[FIELDNAMES[1]]).compare(Date(startDate)) >= 0 and Date(row[FIELDNAMES[1]]).compare(Date(endDate)) <= 0:
                 rowsToPrint.append(row)
-
-                if row[FIELDNAMES[2]] == "+":
-                    netTotal += float(row[FIELDNAMES[3]])
-                elif row[FIELDNAMES[2]] == "-":
-                    netTotal -= float(row[FIELDNAMES[3]])
 
         if len(rowsToPrint) == 0:
             if displayAll:
@@ -65,16 +92,21 @@ def display(startDate, endDate, displayAll=False):
             else:
                 print("No transactions found for this range.")
         else:
-            print("\nIndex\t\tDate\t\t\tType\t\t\tAmount\t\t\tCategory")
+            print("\n\nIndex" + 4*tab + "Date" + 5*tab + "Type" + 5*tab + "Amount" + 5*tab + "Category\n")
 
             for row in rowsToPrint:
-                print("{}\t\t{}\t\t{}\t\t\t${}\t\t\t{}".format(row[FIELDNAMES[0]], row[FIELDNAMES[1]], row[FIELDNAMES[2]], row[FIELDNAMES[3]], row[FIELDNAMES[4]]))
+                print("{}".format(row[FIELDNAMES[0]]) + 4*tab + "{}".format(row[FIELDNAMES[1]]) + 4*tab + "{}".format(row[FIELDNAMES[2]]) + 5*tab + "${}".format(row[FIELDNAMES[3]]) + 5*tab + "{}".format(row[FIELDNAMES[4]]))
             
             sign = ""
-            if netTotal < 0:
+            if balance < 0:
                 sign = "-"
 
-            print("\n\t\t\t\t\tTotal: {}${:.2f}".format(sign, round(abs(netTotal), 2)))
+            print("\n" + 10*tab + "Balance: {}${:.2f}\n\n".format(sign, round(abs(balance), 2)))
+
+            print(2*tab + "Balance Breakdown" + 11*tab + "Top Three Categories")
+            print(2*tab + "Expenditure: {} transactions totaling ${:.2f}".format(expenditureCount, round(abs(expenditure), 2)) + 8*tab + list(sortedCategoryList)[-1])
+            print(2*tab + "Income:      {} paychecks totaling ${:.2f}".format(incomeCount, round(abs(income), 2)) + 8*tab + list(sortedCategoryList)[-2])
+            print(15*tab + list(sortedCategoryList)[-3])
 
 def getStartAndEndDates():
     startDate = input("Enter start date (MM/DD/YY): ")
@@ -92,6 +124,7 @@ if __name__ == "__main__":
 
     # Main event loop
     inputChoice = -1
+    os.system('clear')
     while(inputChoice != 4):
         inputChoice = menu()
         
