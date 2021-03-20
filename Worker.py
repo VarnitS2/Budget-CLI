@@ -111,14 +111,14 @@ def display(startDate, endDate, displayAll=False):
 
             print(2*tab + "Balance Breakdown" + 9*tab + "Top Three Categories")
 
-            print(2*tab + "Expenditure: {} transactions totaling ${:.2f}".format(expenditureCount, round(abs(expenditure), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-1] 
-                    + ":\t\t{} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-1]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-1]], 2)))
+            print(2*tab + "Expenditure  : {} transactions totaling ${:.2f}".format(expenditureCount, round(abs(expenditure), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-1] 
+                    + "\t\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-1]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-1]], 2)))
 
-            print(2*tab + "Income:      {} paychecks totaling ${:.2f}".format(incomeCount, round(abs(income), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-2]
-                    + ":\t{} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-2]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-2]], 2)))
+            print(2*tab + "Income       : {} paychecks totaling ${:.2f}".format(incomeCount, round(abs(income), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-2]
+                    + "\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-2]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-2]], 2)))
 
             print(13*tab + list(sortedCategoryTransactionAmount)[-3]
-                    + ":\t\t{} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-3]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-3]], 2)))
+                    + "\t\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-3]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-3]], 2)))
 
 def getStartAndEndDates():
     startDate = input("Enter start date (MM/DD/YY): ")
@@ -127,13 +127,31 @@ def getStartAndEndDates():
     return startDate, endDate
 
 
-def readNotes():
-    os.system('clear')
+def printNotesHelp():
+    os.system("clear")
+    print("Help\n")
+    print("\t-d <index>\t: Delete note at index")
+    print("\t-e\t\t: Exit to menu")
+    print("\t-h\t\t: Print this help page\n")
+
+def deleteNote(idx):
+    with open(NOTES_FILENAME) as file:
+        lines = file.readlines()
+
+    with open(NOTES_FILENAME, 'w') as file:
+        for count, line in enumerate(lines):
+            if count != idx:
+                file.write(line)
+
+def readNotes(keepOnScreen=False):
+    if not keepOnScreen:
+        os.system('clear')
+
     flag = False
 
     with open(NOTES_FILENAME) as file:
-        for line in file:
-            print(line)
+        for count, line in enumerate(file):
+            print(str(count) + ". " + line)
             flag = True
 
     if not flag:
@@ -141,18 +159,31 @@ def readNotes():
 
 def writeNotes():
     note = ""
+    command = ""
 
-    # TODO: Maintain an index of individual notes.
     while True:
-        readNotes()
+        if command == "h":
+            readNotes(keepOnScreen=True)
+            command = ""
+        else:
+            readNotes()
 
-        note = input("\nType exit to go back\n-> ")
+        note = input("\nType -h for help.\n-> ")
 
-        if note == "exit":
-            break
-
-        with open(NOTES_FILENAME, 'a') as file:
-            file.write(note + "\n")
+        if note[0] == "-":
+            command = note.split(" ")[0].split("-")[1]
+            if command == "e":
+                break
+            elif command == "h":
+                printNotesHelp()
+            elif command == "d":
+                try:
+                    deleteNote(int(note.split(" ")[1]))
+                except:
+                    print("Usage: -d <index>")
+        else:
+            with open(NOTES_FILENAME, 'a') as file:
+                file.write(note + "\n")
 
 
 # TODO: Add Spotify to scraper and include in data
