@@ -21,7 +21,7 @@ def menu():
     print("4. Notes.")
     print("5. Exit.\n")
 
-    return int(input("Input: "))
+    return int(input("-> "))
 
 def getAddTransactionInput():
     transactionDate = Date(input("Enter the date of the transaction (MM/DD/YY): "))
@@ -78,14 +78,40 @@ def calculateOverallStats():
 
     return balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount
 
+def calculatePayrollStats():
+    with open(DATA_FILENAME) as file:
+        reader = csv.DictReader(file)
+
+def displayFooter():
+    balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount = calculateOverallStats()
+    
+    # Sort categoryTransactionAmount in increasing order of total amount
+    sortedCategoryTransactionAmount = {k: v for k, v in sorted(categoryTransactionAmount.items(), key=lambda item: item[1])}
+    tab = '\t'
+
+    sign = ""
+    if balance < 0:
+        sign = "-"
+
+    print("\n" + 10*tab + "\b\bBalance: {}${:.2f}\n\n".format(sign, round(abs(balance), 2)))
+
+    print(2*tab + "Balance Breakdown" + 9*tab + "Top Three Categories")
+
+    print(2*tab + "Expenditure  : {} transactions totaling ${:.2f}".format(expenditureCount, round(abs(expenditure), 2)) + 5*tab + list(sortedCategoryTransactionAmount)[-1] 
+            + "\t\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-1]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-1]], 2)))
+
+    print(2*tab + "Income       : {} paychecks totaling ${:.2f}".format(incomeCount, round(abs(income), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-2]
+            + "\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-2]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-2]], 2)))
+
+    print(13*tab + list(sortedCategoryTransactionAmount)[-3]
+            + "\t\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-3]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-3]], 2)))
+
+
+# TODO: Add balance for date range
 def display(startDate, endDate, displayAll=False):
     with open(DATA_FILENAME) as file:
         reader = csv.DictReader(file)
         rowsToPrint = []
-        balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount = calculateOverallStats()
-        
-        # Sort categoryTransactionAmount in increasing order of total amount
-        sortedCategoryTransactionAmount = {k: v for k, v in sorted(categoryTransactionAmount.items(), key=lambda item: item[1])}
         tab = '\t'
 
         for row in reader:
@@ -102,23 +128,8 @@ def display(startDate, endDate, displayAll=False):
 
             for row in rowsToPrint:
                 print("{}".format(row[FIELDNAMES[0]]) + 4*tab + "{}".format(row[FIELDNAMES[1]]) + 4*tab + "{}".format(row[FIELDNAMES[2]]) + 5*tab + "${}".format(row[FIELDNAMES[3]]) + 5*tab + "{}".format(row[FIELDNAMES[4]]))
-            
-            sign = ""
-            if balance < 0:
-                sign = "-"
 
-            print("\n" + 10*tab + "\b\bBalance: {}${:.2f}\n\n".format(sign, round(abs(balance), 2)))
-
-            print(2*tab + "Balance Breakdown" + 9*tab + "Top Three Categories")
-
-            print(2*tab + "Expenditure  : {} transactions totaling ${:.2f}".format(expenditureCount, round(abs(expenditure), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-1] 
-                    + "\t\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-1]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-1]], 2)))
-
-            print(2*tab + "Income       : {} paychecks totaling ${:.2f}".format(incomeCount, round(abs(income), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-2]
-                    + "\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-2]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-2]], 2)))
-
-            print(13*tab + list(sortedCategoryTransactionAmount)[-3]
-                    + "\t\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-3]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-3]], 2)))
+            displayFooter()
 
 def getStartAndEndDates():
     startDate = input("Enter start date (MM/DD/YY): ")
@@ -190,6 +201,11 @@ def writeNotes():
 # TODO: Create a notes file, add a notes option to the menu, real-time display and write
 # TODO: Add upcoming dates to display (payroll, Spotify)
 
+# TODO: Watch JS playlist and implement visual graphs
+#       Spending by category
+
+# TODO: Paycheck usage breakdown: % of latest paycheck spent so far, paycheck spending trends
+
 if __name__ == "__main__":
 
     # If the data file does not exist, create it
@@ -200,7 +216,7 @@ if __name__ == "__main__":
     # Main event loop
     inputChoice = -1
     os.system('clear')
-    while(inputChoice != 5):
+    while (inputChoice != 5):
         inputChoice = menu()
         
         if (inputChoice == 1):
