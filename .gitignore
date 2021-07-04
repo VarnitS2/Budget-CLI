@@ -6,3 +6,6 @@ Data/
 
 # Ignore all pyc
 __pycache__/
+
+# Ignore scraper
+scraper.py
