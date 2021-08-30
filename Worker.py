@@ -1,13 +1,17 @@
 import csv
 import os
+from pathlib import Path
 from lib.date import Date
 
+DATA_DIRECTORY = "data"
 DATA_FILENAME = "data/data.csv"
 FIELDNAMES = ["Index", "Date", "Type", "Amount", "Category"]
 
 NOTES_FILENAME = "data/notes.txt"
 
 def dataInit():
+    Path(DATA_DIRECTORY).mkdir(parents=True, exist_ok=True)
+
     with open(DATA_FILENAME, 'w') as file:
         writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
         writer.writeheader()
@@ -35,8 +39,6 @@ def addTransaction(transactionDate, transactionType, transactionAmount, transact
     with open(DATA_FILENAME) as file:
         index = sum(1 for row in csv.reader(file))
 
-    # TODO: insert record by date and not index
-
     with open(DATA_FILENAME, 'a') as file:
         writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
 
@@ -48,9 +50,10 @@ def addTransaction(transactionDate, transactionType, transactionAmount, transact
             FIELDNAMES[4]: transactionCategory
         })
 
-def calculateOverallStats():
+def calculateOverallStats(startDate, endDate):
     with open(DATA_FILENAME) as file:
         reader = csv.DictReader(file)
+        relevantRows = []
         balance = 0
         expenditure = 0
         expenditureCount = 0
@@ -60,6 +63,10 @@ def calculateOverallStats():
         categoryTransactionAmount = {}
 
         for row in reader:
+            if Date(row[FIELDNAMES[1]]).compare(Date(startDate)) >= 0 and Date(row[FIELDNAMES[1]]).compare(Date(endDate)) <= 0:
+                relevantRows.append(row)
+
+        for row in relevantRows:
             if row[FIELDNAMES[2]] == "+":
                 balance += float(row[FIELDNAMES[3]])
                 income += float(row[FIELDNAMES[3]])
@@ -82,8 +89,10 @@ def calculatePayrollStats():
     with open(DATA_FILENAME) as file:
         reader = csv.DictReader(file)
 
-def displayFooter():
-    balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount = calculateOverallStats()
+        
+
+def displayFooter(startDate, endDate):
+    balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount = calculateOverallStats(startDate, endDate)
     
     # Sort categoryTransactionAmount in increasing order of total amount
     sortedCategoryTransactionAmount = {k: v for k, v in sorted(categoryTransactionAmount.items(), key=lambda item: item[1])}
@@ -129,7 +138,7 @@ def display(startDate, endDate, displayAll=False):
             for row in rowsToPrint:
                 print("{}".format(row[FIELDNAMES[0]]) + 4*tab + "{}".format(row[FIELDNAMES[1]]) + 4*tab + "{}".format(row[FIELDNAMES[2]]) + 5*tab + "${}".format(row[FIELDNAMES[3]]) + 5*tab + "{}".format(row[FIELDNAMES[4]]))
 
-            displayFooter()
+            displayFooter(startDate, endDate)
 
 def getStartAndEndDates():
     startDate = input("Enter start date (MM/DD/YY): ")
@@ -197,8 +206,9 @@ def writeNotes():
                 file.write(note + "\n")
 
 
-# TODO: Add Spotify to scraper and include in data
-# TODO: Create a notes file, add a notes option to the menu, real-time display and write
+# TODO: Set up mode - initial balance, think of more
+# TODO: Presets - payroll, subscriptions
+# TODO: Subscriptions tab and stats
 # TODO: Add upcoming dates to display (payroll, Spotify)
 
 # TODO: Watch JS playlist and implement visual graphs
