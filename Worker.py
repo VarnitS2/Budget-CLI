@@ -24,6 +24,7 @@ def menu():
     print("3. See transaction history between two dates.")
     print("4. Notes.")
     print("5. Exit.\n")
+    print("6. Most spending category")
 
     return int(input("-> "))
 
@@ -205,6 +206,15 @@ def writeNotes():
             with open(NOTES_FILENAME, 'a') as file:
                 file.write(note + "\n")
 
+def mostSpendingBreakdown():
+    balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount = calculateOverallStats("00/00/00", "12/31/99")
+    
+    # Sort categoryTransactionAmount in increasing order of total amount
+    sortedCategoryTransactionAmount = {k: v for k, v in sorted(categoryTransactionAmount.items(), key=lambda item: -item[1])}
+    tab = '\t'
+
+    for idx, val in enumerate(reversed(list(sortedCategoryTransactionAmount))):
+        print("{:<30}: {} transactions totaling ${:>7.2f}".format(list(sortedCategoryTransactionAmount)[idx],categoryTransactionCount[list(sortedCategoryTransactionAmount)[idx]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[idx]], 2)))
 
 # TODO: Set up mode - initial balance, think of more
 # TODO: Presets - payroll, subscriptions
@@ -242,5 +252,7 @@ if __name__ == "__main__":
         elif (inputChoice == 5):
             print("Exiting")
             break
+        elif (inputChoice == 6):
+            mostSpendingBreakdown()
         else:
             print("Invalid input")
