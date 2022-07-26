@@ -77,18 +77,25 @@ def calculateOverallStats(startDate, endDate):
                 expenditure += float(row[FIELDNAMES[3]])
                 expenditureCount += 1
 
-                if row[FIELDNAMES[4]] in categoryTransactionCount:
-                    categoryTransactionCount[row[FIELDNAMES[4]]] += 1
-                    categoryTransactionAmount[row[FIELDNAMES[4]]] += float(row[FIELDNAMES[3]])
+                if row[FIELDNAMES[4]].upper() in categoryTransactionCount:
+                    categoryTransactionCount[row[FIELDNAMES[4]].upper()] += 1
+                    categoryTransactionAmount[row[FIELDNAMES[4]].upper()] += float(row[FIELDNAMES[3]])
                 else:
-                    categoryTransactionCount[row[FIELDNAMES[4]]] = 1
-                    categoryTransactionAmount[row[FIELDNAMES[4]]] = float(row[FIELDNAMES[3]])
+                    categoryTransactionCount[row[FIELDNAMES[4]].upper()] = 1
+                    categoryTransactionAmount[row[FIELDNAMES[4]].upper()] = float(row[FIELDNAMES[3]])
 
     return balance, expenditure, expenditureCount, income, incomeCount, categoryTransactionCount, categoryTransactionAmount
 
-def calculatePayrollStats():
-    with open(DATA_FILENAME) as file:
-        reader = csv.DictReader(file)
+# TODO: Finish this
+
+# def calculatePayrollStats():
+#     with open(DATA_FILENAME) as file:
+#         reader = csv.DictReader(file)
+
+#         for row in reversed(reader):
+#             if row[FIELDNAMES[4]] == "PAYROLL":
+
+
 
         
 
@@ -107,14 +114,19 @@ def displayFooter(startDate, endDate):
 
     print(2*tab + "Balance Breakdown" + 9*tab + "Top Three Categories")
 
-    print(2*tab + "Expenditure  : {} transactions totaling ${:.2f}".format(expenditureCount, round(abs(expenditure), 2)) + 5*tab + list(sortedCategoryTransactionAmount)[-1] 
+    print(2*tab + "Expenditure  : {} transactions totaling ${:.2f}".format(expenditureCount, round(abs(expenditure), 2)) 
+            + 5*tab + list(sortedCategoryTransactionAmount)[-1] 
             + "\t\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-1]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-1]], 2)))
 
-    print(2*tab + "Income       : {} paychecks totaling ${:.2f}".format(incomeCount, round(abs(income), 2)) + 6*tab + list(sortedCategoryTransactionAmount)[-2]
+    print(2*tab + "Income       : {} paychecks totaling ${:.2f}".format(incomeCount, round(abs(income), 2)) + 6*tab 
+            + list(sortedCategoryTransactionAmount)[-2] 
             + "\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-2]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-2]], 2)))
 
-    print(13*tab + list(sortedCategoryTransactionAmount)[-3]
+    print(2*tab + "Saved        : {:.2f}%".format((1 - (round(abs(expenditure), 2) / round(abs(income), 2))) * 100) + 9*tab
+            + list(sortedCategoryTransactionAmount)[-3]
             + "\t\t: {} transactions totaling ${:.2f}".format(categoryTransactionCount[list(sortedCategoryTransactionAmount)[-3]], round(categoryTransactionAmount[list(sortedCategoryTransactionAmount)[-3]], 2)))
+
+    print(2*tab + "Avg per day  : ${:.2f}".format(expenditure / Date(startDate).diffDays(Date(endDate))))
 
 
 # TODO: Add balance for date range
@@ -243,7 +255,7 @@ if __name__ == "__main__":
             transactionDate, transactionType, transactionAmount, transactionCategory = getAddTransactionInput()
             addTransaction(transactionDate, transactionType, transactionAmount, transactionCategory)
         elif (inputChoice == 2):
-            display("00/00/00", "12/31/99", True)
+            display("01/01/00", "12/31/99", True)
         elif (inputChoice == 3):
             startDate, endDate = getStartAndEndDates()
             display(startDate, endDate)

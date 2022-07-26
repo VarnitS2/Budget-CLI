@@ -1,3 +1,5 @@
+from datetime import date
+
 class Date:
     def __init__(self, date):
         self.month = int(date.split('/')[0])
@@ -29,3 +31,6 @@ class Date:
             return 1
         else:
             return 0
+
+    def diffDays(self, other):
+        return (date(2000+other.year, other.month, other.day) - date(2000+self.year, self.month, self.day)).days
