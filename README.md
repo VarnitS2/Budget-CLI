@@ -1,2 +1,3 @@
 # Budget Manager
-A simple command line script to manage my money.
+
+A simple command line script to manage OUR money.
