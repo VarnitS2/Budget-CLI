@@ -127,6 +127,8 @@ def displayFooter(startDate, endDate):
 
     print(2*tab + "Avg per day  : ${:.2f}".format(expenditure / Date(startDate).diffDays(Date(endDate))))
 
+    print(2*tab + "Max per day  : ${:.2f}".format(income / Date(startDate).diffDays(Date(endDate))))
+
 
 # TODO: Add balance for date range
 def display(startDate, endDate, displayAll=False):
