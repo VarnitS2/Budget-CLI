@@ -23,7 +23,7 @@ def menu():
     print("2. See entire transaction history.")
     print("3. See transaction history between two dates.")
     print("4. Notes.")
-    print("5. Exit.\n")
+    print("5. Exit")
     print("6. Most spending category")
 
     return int(input("-> "))
