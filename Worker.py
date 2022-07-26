@@ -23,8 +23,8 @@ def menu():
     print("2. See entire transaction history.")
     print("3. See transaction history between two dates.")
     print("4. Notes.")
-    print("5. Exit")
-    print("6. Most spending category")
+    print("5. Most spending category")
+    print("6. Exit\n")
 
     return int(input("-> "))
 
@@ -264,9 +264,9 @@ if __name__ == "__main__":
         elif (inputChoice == 4):
             writeNotes()
         elif (inputChoice == 5):
+            mostSpendingBreakdown()
+        elif (inputChoice == 6):
             print("Exiting")
             break
-        elif (inputChoice == 6):
-            mostSpendingBreakdown()
         else:
             print("Invalid input")
